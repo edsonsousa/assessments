@@ -1,7 +1,5 @@
 package br.edson.assessment.goeuro;
 
-import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -20,15 +18,16 @@ import com.opencsv.CSVWriter;
 
 public class JSONtoCSV {
 
-	private final String URL_GO_EURO_TEST_JSON = "http://api.goeuro.com/api/v2/position/suggest/en/";
+	private static final String SPACE = "%20";
+	private static final String URL_GO_EURO_TEST_JSON = "http://api.goeuro.com/api/v2/position/suggest/en/";
 	private static final String ERROR_PARAMETER_NULL = "Please inform a least 1 City as parameter.";
 	private static final String UNKNOW_ERROR = "Unknow Error";
 	private static final String KEY_ID = "_id";
-	private static final String JSON_ERROR = null;
-	private static final String URL_ERROR = null;
-	private static final String ZERO_RESULTS = null;
-	private static final String IO_QUERY_ERROR = null;
-	private static final String FILE_IO_ERROR = null;
+	private static final String JSON_ERROR = "JSON Error";
+	private static final String URL_ERROR = "URL Error";
+	private static final String ZERO_RESULTS = "No result found for informed city";
+	private static final String IO_QUERY_ERROR = "Stream IO Error";
+	private static final String FILE_IO_ERROR = "IO File Error";
 	private static final String KEY_NAME = "name";
 	private static final String KEY_TYPE = "type";
 	private static final String KEY_LATITUDE = "latitude";
@@ -36,15 +35,15 @@ public class JSONtoCSV {
 	private static final String KEY_GEO_POSITION = "geo_position";
 	private static final String SEPARATOR = ",";
 
+
 	private String run(String city) {
 		JSONArray arrayReturn;
 		List<JSONObject> objectsReturn;
 
 		try {
 
-			city = city.replaceAll(" ","%20");
-
 			arrayReturn = returnCityJSON(city);
+
 		} catch (JSONException e) {
 			return JSON_ERROR;
 		} catch (URISyntaxException e) {
@@ -52,7 +51,7 @@ public class JSONtoCSV {
 		} catch (MalformedURLException e) {
 			return URL_ERROR;
 		} catch (IOException e) {
-			return IO_QUERY_ERROR; 
+			return IO_QUERY_ERROR;
 		}
 		if(arrayReturn != null && arrayReturn.length() > 0 ){
 			objectsReturn = new ArrayList<JSONObject>();
@@ -68,14 +67,14 @@ public class JSONtoCSV {
 		} else{
 			return ZERO_RESULTS;
 		}
-		
+
 		return UNKNOW_ERROR;
 
 	}
 
 	private String[] jsonTOCSV(List<JSONObject> objectsReturn) {
 		String line;
-		
+
 		String[] result = new String[objectsReturn.size()];
 		int cont = 0;
 		for (JSONObject o : objectsReturn) {
@@ -96,7 +95,7 @@ public class JSONtoCSV {
 		 CSVWriter writer = new CSVWriter(new FileWriter("resultAPI_go_euro_"+city+".csv"), ',');
 		 //write a header
 		 writer.writeNext((KEY_ID+SEPARATOR+KEY_NAME+SEPARATOR+KEY_TYPE+SEPARATOR+KEY_LATITUDE+SEPARATOR+KEY_LONGITUDE).split(SEPARATOR));
-		 
+
 		 String[] line;
 		 for (int i = 0; i < citiesCSV.length; i++) {
 			line = citiesCSV[i].split(",");
@@ -104,27 +103,13 @@ public class JSONtoCSV {
 		}
 
 		 writer.close();
-	   
-/*		File file = new File("resultAPI_go_euro_"+city+".csv");
 
-		// if file doesnt exists, then create it
-		if (!file.exists()) {
-			file.createNewFile();
-		}
-
-		FileWriter fw = new FileWriter(file.getAbsoluteFile());
-		BufferedWriter bw = new BufferedWriter(fw);
-		bw.write(citiesCSV);
-		bw.close();
-*/
 	}
 
 	private JSONArray returnCityJSON(String city) throws URISyntaxException, JSONException, MalformedURLException, IOException {
 
-		System.out.println(city); 
-
 		//I need to do this because of encoding of a possible city like 'São Paulo'
-		URI uri = new URI(new URI(URL_GO_EURO_TEST_JSON + city).toASCIIString());
+		URI uri = new URI(new URI(URL_GO_EURO_TEST_JSON + city.replaceAll(" ",SPACE)).toASCIIString());
 
 		JSONTokener tokener = new JSONTokener(uri.toURL().openStream());
 
@@ -139,7 +124,8 @@ public class JSONtoCSV {
 
 		} else{
 
-			new JSONtoCSV().run(args[0]);
+			System.out.println("Parameter: "+args[0]);
+			System.out.println(new JSONtoCSV().run(args[0]));
 
 		}
 
