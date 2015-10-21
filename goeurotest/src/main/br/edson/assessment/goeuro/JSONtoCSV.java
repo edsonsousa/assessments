@@ -20,7 +20,7 @@ public class JSONtoCSV {
 
 	private static final String SPACE = "%20";
 	private static final String URL_GO_EURO_TEST_JSON = "http://api.goeuro.com/api/v2/position/suggest/en/";
-	private static final String ERROR_PARAMETER_NULL = "Please inform a least 1 City as parameter.";
+	public static final String ERROR_PARAMETER_NULL = "Please inform a least 1 City as parameter.";
 	private static final String UNKNOW_ERROR = "Unknow Error";
 	private static final String KEY_ID = "_id";
 	private static final String JSON_ERROR = "JSON Error";
@@ -34,11 +34,16 @@ public class JSONtoCSV {
 	private static final String KEY_LONGITUDE = "longitude";
 	private static final String KEY_GEO_POSITION = "geo_position";
 	private static final String SEPARATOR = ",";
+	public static final String CSV_GENERATED = "CSV generated with Sucess";
 
 
-	private String run(String city) {
+	public  String run(String city) {
 		JSONArray arrayReturn;
 		List<JSONObject> objectsReturn;
+
+		if(city == null){
+			return ERROR_PARAMETER_NULL;
+		}
 
 		try {
 
@@ -61,15 +66,13 @@ public class JSONtoCSV {
 			}
 			try {
 				writeCSV(city, jsonTOCSV(objectsReturn));
+				return CSV_GENERATED;
 			} catch (IOException e) {
 				return FILE_IO_ERROR;
 			}
 		} else{
 			return ZERO_RESULTS;
 		}
-
-		return UNKNOW_ERROR;
-
 	}
 
 	private String[] jsonTOCSV(List<JSONObject> objectsReturn) {
@@ -92,17 +95,17 @@ public class JSONtoCSV {
 	}
 
 	private void writeCSV(String city, String[] citiesCSV) throws IOException {
-		 CSVWriter writer = new CSVWriter(new FileWriter("resultAPI_go_euro_"+city+".csv"), ',');
-		 //write a header
-		 writer.writeNext((KEY_ID+SEPARATOR+KEY_NAME+SEPARATOR+KEY_TYPE+SEPARATOR+KEY_LATITUDE+SEPARATOR+KEY_LONGITUDE).split(SEPARATOR));
+		CSVWriter writer = new CSVWriter(new FileWriter("resultAPI_go_euro_"+city+".csv"), ',');
+		//write a header
+		writer.writeNext((KEY_ID+SEPARATOR+KEY_NAME+SEPARATOR+KEY_TYPE+SEPARATOR+KEY_LATITUDE+SEPARATOR+KEY_LONGITUDE).split(SEPARATOR));
 
-		 String[] line;
-		 for (int i = 0; i < citiesCSV.length; i++) {
+		String[] line;
+		for (int i = 0; i < citiesCSV.length; i++) {
 			line = citiesCSV[i].split(",");
 			writer.writeNext(line);
 		}
 
-		 writer.close();
+		writer.close();
 
 	}
 
@@ -117,15 +120,14 @@ public class JSONtoCSV {
 	}
 
 	public static void main(String[] args) {
+		String city = null;
 
-		if(args.length == 0){
-
-			System.out.println(ERROR_PARAMETER_NULL);
-
+		if(args.length > 0){
+			city = args[0];
 		} else{
 
-			System.out.println("Parameter: "+args[0]);
-			System.out.println(new JSONtoCSV().run(args[0]));
+			System.out.println("Parameter: "+city);
+			System.out.println(new JSONtoCSV().run(city));
 
 		}
 
