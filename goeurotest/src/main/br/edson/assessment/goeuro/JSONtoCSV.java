@@ -20,12 +20,11 @@ public class JSONtoCSV {
 
 	private static final String SPACE = "%20";
 	private static final String URL_GO_EURO_TEST_JSON = "http://api.goeuro.com/api/v2/position/suggest/en/";
-	public static final String ERROR_PARAMETER_NULL = "Please inform a least 1 City as parameter.";
-	private static final String UNKNOW_ERROR = "Unknow Error";
+	public static final String ERROR_PARAMETER_NULL = "Please inform 1 City as parameter";
 	private static final String KEY_ID = "_id";
 	private static final String JSON_ERROR = "JSON Error";
 	private static final String URL_ERROR = "URL Error";
-	private static final String ZERO_RESULTS = "No result found for informed city";
+	private static final String ZERO_RESULTS = "No results found for ";
 	private static final String IO_QUERY_ERROR = "Stream IO Error";
 	private static final String FILE_IO_ERROR = "IO File Error";
 	private static final String KEY_NAME = "name";
@@ -34,7 +33,7 @@ public class JSONtoCSV {
 	private static final String KEY_LONGITUDE = "longitude";
 	private static final String KEY_GEO_POSITION = "geo_position";
 	private static final String SEPARATOR = ",";
-	public static final String CSV_GENERATED = "CSV generated with Sucess";
+	public static final String CSV_GENERATED = "Sucessfull generated CVS";
 
 
 	public  String run(String city) {
@@ -59,6 +58,7 @@ public class JSONtoCSV {
 			return IO_QUERY_ERROR;
 		}
 		if(arrayReturn != null && arrayReturn.length() > 0 ){
+			System.out.println("Found "+arrayReturn.length()+" lines for \""+ city+"\"");
 			objectsReturn = new ArrayList<JSONObject>();
 
 			for (int i = 0; i < arrayReturn.length(); i++) {
@@ -71,7 +71,7 @@ public class JSONtoCSV {
 				return FILE_IO_ERROR;
 			}
 		} else{
-			return ZERO_RESULTS;
+			return ZERO_RESULTS + "\""+ city+"\"";
 		}
 	}
 
@@ -124,12 +124,9 @@ public class JSONtoCSV {
 
 		if(args.length > 0){
 			city = args[0];
-		} else{
-
-			System.out.println("Parameter: "+city);
-			System.out.println(new JSONtoCSV().run(city));
-
 		}
+		//System.out.println("Parameter: "+city);
+		System.out.println(new JSONtoCSV().run(city));
 
 	}
 
